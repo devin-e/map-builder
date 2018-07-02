@@ -10,6 +10,11 @@ class Game():
     def __init__(self):
         self.window = turtle.Screen()
 
+        # border pieces
+        self.window.register_shape("vertical_wall", ((0, 0), (1, 0), (1, 40), (0, 40)))
+        self.window.register_shape("right_lean_wall", ((0, 0), (1, 0), (31, 40), (30, 40)))
+        self.window.register_shape("left_lean_wall", ((1, 0), (0, 0), (-30, 40), (-29, 40)))
+
     def new_game(self):
         turtle.resetscreen()
         turtle.clearscreen()
@@ -24,6 +29,30 @@ class Game():
     def end_game(self):
         self.window.bgcolor("blue")
         self.window_lives = False
+
+
+class Wall_Section(turtle.Turtle):
+
+    def __init__(self, shape, position, type):
+        turtle.Turtle.__init__(self)
+        self.speed(0)
+        self.hideturtle()
+        self.penup()
+        self.shape(shape)
+        self.color("white")
+        self.setheading(90)
+        self.setposition(position)
+        self.showturtle()
+        self.shape = shape
+        self.type = type
+
+        if self.shape == "right_lean_wall":
+            self.slope = 4/3
+        elif self.shape == "left_lean_wall":
+            self.slope = -4/3
+        else:
+            self.slope = None
+
 
 
 class Grid(turtle.Turtle):
@@ -75,6 +104,10 @@ def main():
 
     turtle.listen()
     turtle.onkey(game.end_game, "p")
+
+    wall_1 = Wall_Section("vertical_wall", (-300, 65), "vert")
+    wall_2 = Wall_Section("right_lean_wall", (-315, -15), "roof")
+    wall_3 = Wall_Section("left_lean_wall", (-285, -95), "floor")
 
     while game.window_lives:
         time.sleep(1.0/60)
