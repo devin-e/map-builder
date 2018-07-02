@@ -33,7 +33,7 @@ class Game():
         self.window_lives = False
 
 
-class Click_Radius(turtle.Turtle):
+class Button(turtle.Turtle):
 
     def __init__(self, button_handler, shape):
         turtle.Turtle.__init__(self)
@@ -56,14 +56,14 @@ class Click_Radius(turtle.Turtle):
                 self.button_handler.switch_grid_button_focus(self)
 
 
-class Grid_Button(Click_Radius):
+class Grid_Button(Button):
 
     def __init__(self, button_handler, shape, button_type):
         super().__init__(button_handler, shape)
         self.button_type = button_type
 
 
-class Wall_Button(Click_Radius):
+class Wall_Button(Button):
 
     def __init__(self, button_handler, shape, image):
         super().__init__(button_handler, shape)
@@ -215,7 +215,7 @@ def main():
     button_handler = Button_Handler()
     button_handler.create_buttons()
 
-    test_click_radius = Click_Radius(button_handler, "wall_selector")
+    test_click_radius = Button(button_handler, "wall_selector")
 
     turtle.listen()
     turtle.onkey(game.end_game, "p")
