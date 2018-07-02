@@ -15,6 +15,7 @@ class Game():
         self.window.register_shape("right_lean_wall", ((0, 0), (1, 0), (31, 40), (30, 40)))
         self.window.register_shape("left_lean_wall", ((1, 0), (0, 0), (-30, 40), (-29, 40)))
         self.window.register_shape("wall_selector", ((-20, -25), (20, -25), (20, 25), (-20, 25)))
+        self.window.register_shape("grid_selector", ((-5, -5), (5, -5), (5, 5), (-5, 5)))
 
     def new_game(self):
         turtle.resetscreen()
@@ -22,7 +23,7 @@ class Game():
 
     def draw_screen(self):
         self.window.bgcolor("black")
-        self.window.setup(800, 700)
+        self.window.setup(800, 720)
         self.window.tracer(0, 0)
         self.window.colormode(255)
         self.window_lives = True
@@ -34,53 +35,99 @@ class Game():
 
 class Click_Radius(turtle.Turtle):
 
-    def __init__(self, button, button_handler):
+    def __init__(self, button_handler, shape):
         turtle.Turtle.__init__(self)
         self.speed(0)
         self.color("white")
         self.fillcolor("")
         self.penup()
-        self.shape("wall_selector")
+        self.shape(shape)
         self.setheading(90)
-        self.button = button
         self.onclick(self.get_clicked)
-        self.is_clicked = False
+        self.is_selected = False
         self.button_handler = button_handler
+        self.button_type = "test"
 
     def get_clicked(self, x, y):
-        print(x, y)
-        self.button_handler.switch_button_focus(self.button)
+            print(x, y)
+            if self.button_type == "wall_button":
+                self.button_handler.switch_wall_button_focus(self)
+            elif self.button_type =="grid_button":
+                self.button_handler.switch_grid_button_focus(self)
+
+
+class Grid_Button(Click_Radius):
+
+    def __init__(self, button_handler, shape, button_type):
+        super().__init__(button_handler, shape)
+        self.button_type = button_type
+
+
+class Wall_Button(Click_Radius):
+
+    def __init__(self, button_handler, shape, image):
+        super().__init__(button_handler, shape)
+        self.image = image
+        self.button_type = "wall_button"
 
 
 class Button_Handler():
 
     def __init__(self):
-        self.button_list = []
+
+        self.wall_button_list = []
+        self.button_image_list = []
+        self.active_grid = []
+        self.active_row = -340
+        self.active_column = -120
+
+        self.vert_button_image = Wall_Button_Image("vertical_wall", (-300, 65), "vert")
+        self.right_button_image = Wall_Button_Image("right_lean_wall", (-315, -15), "roof")
+        self.left_button_image = Wall_Button_Image("left_lean_wall", (-285, -95), "floor")
+        self.button_image_list.append(self.vert_button_image)
+        self.button_image_list.append(self.right_button_image)
+        self.button_image_list.append(self.left_button_image)
 
     def create_buttons(self):
-        self.vert_button = Wall_Section("vertical_wall", (-300, 65), "vert")
-        self.right_button = Wall_Section("right_lean_wall", (-315, -15), "roof")
-        self.left_button = Wall_Section("left_lean_wall", (-285, -95), "floor")
-        self.button_list.append(self.vert_button)
-        self.button_list.append(self.right_button)
-        self.button_list.append(self.left_button)
+        # wall buttons
+        for image in self.button_image_list:
+            image.find_center()
+            wall_button = Wall_Button(self, "wall_selector", image)
+            wall_button.setposition(image.center_x, image.center_y)
+            self.wall_button_list.append(wall_button)
 
-        for button in self.button_list:
-            button.find_center()
-            button.click_radius = Click_Radius(button, self)
-            button.click_radius.setposition(button.center_x, button.center_y)
+        # left grid buttons
+        for _ in range(4):
+            grid_button = Grid_Button(self, "grid_selector", button_type="grid_button")
+            grid_button.setposition(self.active_column, self.active_row)
+            self.active_grid.append(grid_button)
+            self.active_column += 30
 
-    def switch_button_focus(self, switched):
-        for button in self.button_list:
-            if button == switched:
-                button.color("green")
+    def switch_wall_button_focus(self, selected_button):
+        for button in self.wall_button_list:
+            if button == selected_button:
+                button.image.color("green")
+                button.pencolor("green")
+                button.is_selected = True
             else:
-                button.color("white")
+                button.image.color("white")
+                button.pencolor("white")
+                button.is_selected = False
+
+    def switch_grid_button_focus(self, selected_button):
+
+        for button in self.active_grid:
+            if button == selected_button:
+                button.pencolor("green")
+                button.is_selected = True
+            else:
+                button.pencolor("white")
+                button.is_selected = False
 
 
 class Wall_Section(turtle.Turtle):
 
-    def __init__(self, shape, position, type):
+    def __init__(self, shape, position, wall_type):
         turtle.Turtle.__init__(self)
         self.speed(0)
         self.hideturtle()
@@ -91,7 +138,7 @@ class Wall_Section(turtle.Turtle):
         self.setposition(position)
         self.showturtle()
         self.shape = shape
-        self.type = type
+        self.wall_type = wall_type
 
         if self.shape == "right_lean_wall":
             self.slope = 4/3
@@ -99,6 +146,13 @@ class Wall_Section(turtle.Turtle):
             self.slope = -4/3
         else:
             self.slope = None
+
+
+class Wall_Button_Image(Wall_Section):
+
+    def __init__(self, shape, position, wall_type):
+        super().__init__(shape, position, wall_type)
+        self.is_selected = False
 
     def find_center(self):
         self.center_y = self.ycor() + 20
@@ -161,7 +215,7 @@ def main():
     button_handler = Button_Handler()
     button_handler.create_buttons()
 
-    test_click_radius = Click_Radius("button", button_handler)
+    test_click_radius = Click_Radius(button_handler, "wall_selector")
 
     turtle.listen()
     turtle.onkey(game.end_game, "p")
