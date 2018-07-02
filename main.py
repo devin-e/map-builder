@@ -14,6 +14,7 @@ class Game():
         self.window.register_shape("vertical_wall", ((0, 0), (1, 0), (1, 40), (0, 40)))
         self.window.register_shape("right_lean_wall", ((0, 0), (1, 0), (31, 40), (30, 40)))
         self.window.register_shape("left_lean_wall", ((1, 0), (0, 0), (-30, 40), (-29, 40)))
+        self.window.register_shape("wall_selector", ((-20, -25), (20, -25), (20, 25), (-20, 25)))
 
     def new_game(self):
         turtle.resetscreen()
@@ -31,15 +32,30 @@ class Game():
         self.window_lives = False
 
 
+class Click_Radius(turtle.Turtle):
+
+    def __init__(self, button, button_handler):
+        turtle.Turtle.__init__(self)
+        self.speed(0)
+        self.color("white")
+        self.fillcolor("")
+        self.penup()
+        self.shape("wall_selector")
+        self.setheading(90)
+        self.button = button
+        self.onclick(self.get_clicked)
+        self.is_clicked = False
+        self.button_handler = button_handler
+
+    def get_clicked(self, x, y):
+        print(x, y)
+        self.button_handler.switch_button_focus(self.button)
+
+
 class Button_Handler():
 
     def __init__(self):
         self.button_list = []
-        self.border_pen = turtle.Turtle()
-        self.border_pen.speed(0)
-        self.border_pen.hideturtle()
-        self.border_pen.penup()
-        self.border_pen.color((100, 100, 100))
 
     def create_buttons(self):
         self.vert_button = Wall_Section("vertical_wall", (-300, 65), "vert")
@@ -51,17 +67,15 @@ class Button_Handler():
 
         for button in self.button_list:
             button.find_center()
-            self.draw_button_border(button)
+            button.click_radius = Click_Radius(button, self)
+            button.click_radius.setposition(button.center_x, button.center_y)
 
-    def draw_button_border(self, button):
-        self.border_pen.setposition(button.center_x - 20, button.center_y - 25)
-        self.border_pen.pendown()
-        for _ in range(2):
-            self.border_pen.forward(40)
-            self.border_pen.left(90)
-            self.border_pen.forward(50)
-            self.border_pen.left(90)
-        self.border_pen.penup()
+    def switch_button_focus(self, switched):
+        for button in self.button_list:
+            if button == switched:
+                button.color("green")
+            else:
+                button.color("white")
 
 
 class Wall_Section(turtle.Turtle):
@@ -146,6 +160,8 @@ def main():
 
     button_handler = Button_Handler()
     button_handler.create_buttons()
+
+    test_click_radius = Click_Radius("button", button_handler)
 
     turtle.listen()
     turtle.onkey(game.end_game, "p")
