@@ -31,6 +31,39 @@ class Game():
         self.window_lives = False
 
 
+class Button_Handler():
+
+    def __init__(self):
+        self.button_list = []
+        self.border_pen = turtle.Turtle()
+        self.border_pen.speed(0)
+        self.border_pen.hideturtle()
+        self.border_pen.penup()
+        self.border_pen.color((100, 100, 100))
+
+    def create_buttons(self):
+        self.vert_button = Wall_Section("vertical_wall", (-300, 65), "vert")
+        self.right_button = Wall_Section("right_lean_wall", (-315, -15), "roof")
+        self.left_button = Wall_Section("left_lean_wall", (-285, -95), "floor")
+        self.button_list.append(self.vert_button)
+        self.button_list.append(self.right_button)
+        self.button_list.append(self.left_button)
+
+        for button in self.button_list:
+            button.find_center()
+            self.draw_button_border(button)
+
+    def draw_button_border(self, button):
+        self.border_pen.setposition(button.center_x - 20, button.center_y - 25)
+        self.border_pen.pendown()
+        for _ in range(2):
+            self.border_pen.forward(40)
+            self.border_pen.left(90)
+            self.border_pen.forward(50)
+            self.border_pen.left(90)
+        self.border_pen.penup()
+
+
 class Wall_Section(turtle.Turtle):
 
     def __init__(self, shape, position, type):
@@ -53,6 +86,15 @@ class Wall_Section(turtle.Turtle):
         else:
             self.slope = None
 
+    def find_center(self):
+        self.center_y = self.ycor() + 20
+
+        if self.shape == "right_lean_wall":
+            self.center_x = self.xcor() + 15
+        elif self.shape == "left_lean_wall":
+            self.center_x = self.xcor() - 15
+        else:
+            self.center_x = self.xcor()
 
 
 class Grid(turtle.Turtle):
@@ -102,12 +144,11 @@ def main():
     grid = Grid()
     grid.draw_grid()
 
+    button_handler = Button_Handler()
+    button_handler.create_buttons()
+
     turtle.listen()
     turtle.onkey(game.end_game, "p")
-
-    wall_1 = Wall_Section("vertical_wall", (-300, 65), "vert")
-    wall_2 = Wall_Section("right_lean_wall", (-315, -15), "roof")
-    wall_3 = Wall_Section("left_lean_wall", (-285, -95), "floor")
 
     while game.window_lives:
         time.sleep(1.0/60)
