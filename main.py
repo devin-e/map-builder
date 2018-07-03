@@ -92,13 +92,21 @@ class Button_Handler():
         # wall buttons
         for image in self.button_image_list:
             image.find_center()
-            wall_button = Wall_Button(self, "wall_selector", image)
+            wall_button = Wall_Button(button_handler = self, shape = "wall_selector", image = image)
             wall_button.setposition(image.center_x, image.center_y)
             self.wall_button_list.append(wall_button)
 
         # left grid buttons
         for _ in range(4):
-            grid_button = Grid_Button(self, "grid_selector", button_type="grid_button")
+            grid_button = Grid_Button(button_handler = self, shape = "grid_selector", button_type = "grid_button")
+            grid_button.setposition(self.active_column, self.active_row)
+            self.active_grid.append(grid_button)
+            self.active_column += 30
+
+        # right grid buttons
+        self.active_column += 30
+        for _ in range(4):
+            grid_button = Grid_Button(button_handler=self, shape="grid_selector", button_type = "grid_button")
             grid_button.setposition(self.active_column, self.active_row)
             self.active_grid.append(grid_button)
             self.active_column += 30
@@ -214,8 +222,6 @@ def main():
 
     button_handler = Button_Handler()
     button_handler.create_buttons()
-
-    test_click_radius = Button(button_handler, "wall_selector")
 
     turtle.listen()
     turtle.onkey(game.end_game, "p")
