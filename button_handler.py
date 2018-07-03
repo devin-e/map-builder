@@ -42,6 +42,11 @@ class Button_Handler():
             self.active_grid.append(grid_button)
             self.active_column += 30
 
+        self.build_button = Build_Button(button_handler = self, shape = "wall_selector")
+        self.build_button.setposition(-300, -150)
+        self.build_button.update_build_text(self.build_button.start_color)
+
+
     def switch_wall_button_focus(self, selected_button):
         for button in self.wall_button_list:
             if button == selected_button:
@@ -83,8 +88,11 @@ class Button(turtle.Turtle):
             print(x, y)
             if self.button_type == "wall_button":
                 self.button_handler.switch_wall_button_focus(self)
-            elif self.button_type =="grid_button":
+            elif self.button_type == "grid_button":
                 self.button_handler.switch_grid_button_focus(self)
+            elif self.button_type == "build_button":
+                # self.build()
+                self.glow_green()
 
 
 class Grid_Button(Button):
@@ -102,6 +110,37 @@ class Wall_Button(Button):
         self.button_type = "wall_button"
 
 
+class Build_Button(Button):
+
+    def __init__(self, button_handler, shape):
+        super().__init__(button_handler, shape)
+        self.setheading(0)
+        self.start_color = (200, 50, 50)
+        self.pencolor(self.start_color)
+        self.pencil = turtle.Turtle()
+        self.pencil.speed(0)
+        self.pencil.hideturtle()
+        self.pencil.penup()
+        self.button_type = "build_button"
+        self.onrelease(self.revert_to_red)
+
+    def update_build_text(self, color):
+        self.pencil.clear()
+        self.pencil.pencolor(color)
+        self.pencil.setposition(self.xcor() + 1, self.ycor() - 7)
+        self.pencil.write("Build", align = "center", font=("Arial", 10, "bold"))
+
+    def glow_green(self):
+        self.pencolor((100, 50, 50))
+        self.update_build_text((100, 50, 50))
+
+    def revert_to_red(self,x,y):
+        self.update_build_text(self.start_color)
+        self.pencolor(self.start_color)
+
+    def build(self):
+        pass
+
 
 class Wall_Button_Image(turtle.Turtle):
 
@@ -117,7 +156,6 @@ class Wall_Button_Image(turtle.Turtle):
         self.showturtle()
         self.shape = shape
         # self.wall_type = wall_type
-
 
         self.is_selected = False
 
