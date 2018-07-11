@@ -48,7 +48,7 @@ class Wall_Section(turtle.Turtle):
         self.setheading(90)
         self.setposition(position)
         self.showturtle()
-        self.shape = shape
+        # self.shape = shape
         self.wall_type = wall_type
 
         if self.shape == "right_lean_wall":

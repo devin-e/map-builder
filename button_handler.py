@@ -11,10 +11,13 @@ class Button_Handler():
         self.active_grid = []
         self.active_row = -340
         self.active_column = -120
+        self.new_wall_shape = ""
+        self.new_wall_position = (0, 0)
+        self.new_wall_type = ""
 
-        self.vert_button_image = Wall_Button_Image(shape = "vertical_wall", position = (-300, 65))
-        self.right_button_image = Wall_Button_Image(shape = "right_lean_wall", position = (-315, -15))
-        self.left_button_image = Wall_Button_Image(shape = "left_lean_wall", position = (-285, -95))
+        self.vert_button_image = Wall_Button_Image(wall_shape = "vertical_wall", position = (-300, 65))
+        self.right_button_image = Wall_Button_Image(wall_shape = "right_lean_wall", position = (-315, -15))
+        self.left_button_image = Wall_Button_Image(wall_shape = "left_lean_wall", position = (-285, -95))
         self.button_image_list.append(self.vert_button_image)
         self.button_image_list.append(self.right_button_image)
         self.button_image_list.append(self.left_button_image)
@@ -68,6 +71,33 @@ class Button_Handler():
                 button.pencolor("white")
                 button.is_selected = False
 
+    def build_wall_section(self):
+
+        for wall_button in self.wall_button_list:
+            if wall_button.is_selected:
+                self.new_wall_shape = wall_button.image.wall_shape
+        for grid_button in self.active_grid:
+            if grid_button.is_selected:
+                self.new_wall_position = (grid_button.xcor(), grid_button.ycor())
+
+        if self.new_wall_position[0] > 30 and self.new_wall_shape == "left_lean_wall":
+            self.new_wall_type = "roof"
+        elif 120 > self.new_wall_position[0] > 0 and self.new_wall_shape == "right_lean_wall":
+            self.new_wall_type = "floor"
+        elif self.new_wall_position[0] < -30 and self.new_wall_shape == "right_lean_wall":
+            self.new_wall_type = "roof"
+        elif -120 < self.new_wall_position[0] < 0 and self.new_wall_shape == "left_lean_wall":
+            self.new_wall_type = "floor"
+        elif self.new_wall_shape == "vertical_wall":
+            self.new_wall_type = "vertical"
+        else:
+            print("invalid selections")
+            return("no wall section built")
+
+        wall_section = Wall_Section(self.new_wall_shape, self.new_wall_position, self.new_wall_type)
+
+
+
 
 class Button(turtle.Turtle):
 
@@ -85,13 +115,12 @@ class Button(turtle.Turtle):
         self.button_type = "test"
 
     def get_clicked(self, x, y):
-            print(x, y)
             if self.button_type == "wall_button":
                 self.button_handler.switch_wall_button_focus(self)
             elif self.button_type == "grid_button":
                 self.button_handler.switch_grid_button_focus(self)
             elif self.button_type == "build_button":
-                # self.build()
+                self.button_handler.build_wall_section()
                 self.glow_green()
 
 
@@ -138,13 +167,39 @@ class Build_Button(Button):
         self.update_build_text(self.start_color)
         self.pencolor(self.start_color)
 
-    def build(self):
-        pass
 
 
 class Wall_Button_Image(turtle.Turtle):
 
-    def __init__(self, shape, position):
+    def __init__(self, wall_shape, position):
+        turtle.Turtle.__init__(self)
+        self.speed(0)
+        self.hideturtle()
+        self.penup()
+        self.shape(wall_shape)
+        self.color("white")
+        self.setheading(90)
+        self.setposition(position)
+        self.showturtle()
+        self.wall_shape = wall_shape
+
+        self.is_selected = False
+
+    def find_center(self):
+        self.center_y = self.ycor() + 20
+
+        if self.wall_shape == "right_lean_wall":
+            self.center_x = self.xcor() + 15
+        elif self.wall_shape == "left_lean_wall":
+            self.center_x = self.xcor() - 15
+        else:
+            self.center_x = self.xcor()
+
+
+
+class Wall_Section(turtle.Turtle):
+
+    def __init__(self, shape, position, wall_type):
         turtle.Turtle.__init__(self)
         self.speed(0)
         self.hideturtle()
@@ -154,17 +209,12 @@ class Wall_Button_Image(turtle.Turtle):
         self.setheading(90)
         self.setposition(position)
         self.showturtle()
-        self.shape = shape
-        # self.wall_type = wall_type
-
-        self.is_selected = False
-
-    def find_center(self):
-        self.center_y = self.ycor() + 20
+        # self.shape = shape
+        self.wall_type = wall_type
 
         if self.shape == "right_lean_wall":
-            self.center_x = self.xcor() + 15
+            self.slope = 4/3
         elif self.shape == "left_lean_wall":
-            self.center_x = self.xcor() - 15
+            self.slope = -4/3
         else:
-            self.center_x = self.xcor()
+            self.slope = None
