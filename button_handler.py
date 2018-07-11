@@ -45,10 +45,19 @@ class Button_Handler():
             self.active_grid.append(grid_button)
             self.active_column += 30
 
-        self.build_button = Build_Button(button_handler = self, shape = "wall_selector")
+        # build button
+        self.build_button = Text_Button(button_handler = self, shape = "wall_selector", button_type = "build_button", button_text = "Build")
         self.build_button.setposition(-300, -150)
-        self.build_button.update_build_text(self.build_button.start_color)
+        self.build_button.update_button_text(self.build_button.start_color)
 
+        # active grid row controls
+        self.advance_row_button = Text_Button(button_handler = self, shape = "wall_selector", button_type = "advance_row_button", button_text = "Up")
+        self.advance_row_button.setposition(250, -150)
+        self.advance_row_button.update_button_text(self.advance_row_button.start_color)
+
+        self.retreat_row_button = Text_Button(button_handler = self, shape = "wall_selector", button_type = "retreat_row_button", button_text = "Down")
+        self.retreat_row_button.setposition(250, -200)
+        self.retreat_row_button.update_button_text(self.retreat_row_button.start_color)
 
     def switch_wall_button_focus(self, selected_button):
         for button in self.wall_button_list:
@@ -96,7 +105,13 @@ class Button_Handler():
 
         wall_section = Wall_Section(self.new_wall_shape, self.new_wall_position, self.new_wall_type)
 
+    def advance_active_grid_row(self):
+        for button in self.active_grid:
+            button.setposition(button.xcor(), button.ycor() + 40)
 
+    def retreat_active_grid_row(self):
+        for button in self.active_grid:
+            button.setposition(button.xcor(), button.ycor() - 40)
 
 
 class Button(turtle.Turtle):
@@ -121,7 +136,11 @@ class Button(turtle.Turtle):
                 self.button_handler.switch_grid_button_focus(self)
             elif self.button_type == "build_button":
                 self.button_handler.build_wall_section()
-                self.glow_green()
+                self.dim()
+            elif self.button_type == "advance_row_button":
+                self.button_handler.advance_active_grid_row()
+            elif self.button_type =="retreat_row_button":
+                self.button_handler.retreat_active_grid_row()
 
 
 class Grid_Button(Button):
@@ -139,9 +158,9 @@ class Wall_Button(Button):
         self.button_type = "wall_button"
 
 
-class Build_Button(Button):
+class Text_Button(Button):
 
-    def __init__(self, button_handler, shape):
+    def __init__(self, button_handler, shape, button_type, button_text):
         super().__init__(button_handler, shape)
         self.setheading(0)
         self.start_color = (200, 50, 50)
@@ -150,23 +169,23 @@ class Build_Button(Button):
         self.pencil.speed(0)
         self.pencil.hideturtle()
         self.pencil.penup()
-        self.button_type = "build_button"
+        self.button_type = button_type
         self.onrelease(self.revert_to_red)
+        self.button_text = button_text
 
-    def update_build_text(self, color):
+    def update_button_text(self, color):
         self.pencil.clear()
         self.pencil.pencolor(color)
         self.pencil.setposition(self.xcor() + 1, self.ycor() - 7)
-        self.pencil.write("Build", align = "center", font=("Arial", 10, "bold"))
+        self.pencil.write(self.button_text, align = "center", font=("Arial", 10, "bold"))
 
-    def glow_green(self):
+    def dim(self):
         self.pencolor((100, 50, 50))
-        self.update_build_text((100, 50, 50))
+        self.update_button_text((100, 50, 50))
 
     def revert_to_red(self,x,y):
-        self.update_build_text(self.start_color)
+        self.update_button_text(self.start_color)
         self.pencolor(self.start_color)
-
 
 
 class Wall_Button_Image(turtle.Turtle):
@@ -194,7 +213,6 @@ class Wall_Button_Image(turtle.Turtle):
             self.center_x = self.xcor() - 15
         else:
             self.center_x = self.xcor()
-
 
 
 class Wall_Section(turtle.Turtle):

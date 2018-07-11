@@ -36,27 +36,27 @@ class Game():
         self.window_lives = False
 
 
-class Wall_Section(turtle.Turtle):
+# class Wall_Section(turtle.Turtle):
 
-    def __init__(self, shape, position, wall_type):
-        turtle.Turtle.__init__(self)
-        self.speed(0)
-        self.hideturtle()
-        self.penup()
-        self.shape(shape)
-        self.color("white")
-        self.setheading(90)
-        self.setposition(position)
-        self.showturtle()
-        # self.shape = shape
-        self.wall_type = wall_type
+#     def __init__(self, shape, position, wall_type):
+#         turtle.Turtle.__init__(self)
+#         self.speed(0)
+#         self.hideturtle()
+#         self.penup()
+#         self.shape(shape)
+#         self.color("white")
+#         self.setheading(90)
+#         self.setposition(position)
+#         self.showturtle()
+#         # self.shape = shape
+#         self.wall_type = wall_type
 
-        if self.shape == "right_lean_wall":
-            self.slope = 4/3
-        elif self.shape == "left_lean_wall":
-            self.slope = -4/3
-        else:
-            self.slope = None
+#         if self.shape == "right_lean_wall":
+#             self.slope = 4/3
+#         elif self.shape == "left_lean_wall":
+#             self.slope = -4/3
+#         else:
+#             self.slope = None
 
 
 class Grid(turtle.Turtle):
