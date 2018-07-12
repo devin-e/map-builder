@@ -17,8 +17,8 @@ class Game():
         self.window.register_shape("left_lean_wall", ((1, 0), (0, 0), (-30, 40), (-29, 40)))
 
         # button borders
-        self.window.register_shape("wall_selector", ((-20, -25), (20, -25), (20, 25), (-20, 25)))
-        self.window.register_shape("grid_selector", ((-5, -5), (5, -5), (5, 5), (-5, 5)))
+        self.window.register_shape("large_button_border", ((-20, -25), (20, -25), (20, 25), (-20, 25)))
+        self.window.register_shape("grid_button_border", ((-5, -5), (5, -5), (5, 5), (-5, 5)))
 
     def new_game(self):
         turtle.resetscreen()

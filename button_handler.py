@@ -26,13 +26,13 @@ class Button_Handler():
         # wall buttons
         for image in self.button_image_list:
             image.find_center()
-            wall_button = Wall_Button(button_handler = self, shape = "wall_selector", image = image)
+            wall_button = Wall_Button(button_handler = self, shape = "large_button_border", image = image)
             wall_button.setposition(image.center_x, image.center_y)
             self.wall_button_list.append(wall_button)
 
         # left grid buttons
         for _ in range(4):
-            grid_button = Grid_Button(button_handler = self, shape = "grid_selector", button_type = "grid_button")
+            grid_button = Grid_Button(button_handler = self, shape = "grid_button_border", button_type = "grid_button")
             grid_button.setposition(self.active_column, self.active_row)
             self.active_grid.append(grid_button)
             self.active_column += 30
@@ -40,24 +40,31 @@ class Button_Handler():
         # right grid buttons
         self.active_column += 30
         for _ in range(4):
-            grid_button = Grid_Button(button_handler=self, shape="grid_selector", button_type = "grid_button")
+            grid_button = Grid_Button(button_handler=self, shape="grid_button_border", button_type = "grid_button")
             grid_button.setposition(self.active_column, self.active_row)
             self.active_grid.append(grid_button)
             self.active_column += 30
 
         # build button
-        self.build_button = Text_Button(button_handler = self, shape = "wall_selector", button_type = "build_button", button_text = "Build")
+        self.build_button = Text_Button(button_handler = self, shape = "large_button_border", button_type = "build_button", button_text = "Build")
         self.build_button.setposition(-300, -150)
         self.build_button.update_button_text(self.build_button.start_color)
 
         # active grid row controls
-        self.advance_row_button = Text_Button(button_handler = self, shape = "wall_selector", button_type = "advance_row_button", button_text = "Up")
+        self.advance_row_button = Text_Button(button_handler = self, shape = "large_button_border", button_type = "advance_row_button", button_text = "Up")
         self.advance_row_button.setposition(250, -150)
         self.advance_row_button.update_button_text(self.advance_row_button.start_color)
 
-        self.retreat_row_button = Text_Button(button_handler = self, shape = "wall_selector", button_type = "retreat_row_button", button_text = "Down")
+        self.retreat_row_button = Text_Button(button_handler = self, shape = "large_button_border", button_type = "retreat_row_button", button_text = "Down")
         self.retreat_row_button.setposition(250, -200)
         self.retreat_row_button.update_button_text(self.retreat_row_button.start_color)
+
+        # enemy buttons
+        self.basic_enemy_button = Text_Button(button_handler = self, shape = "large_button_border", button_type = "basic_enemy", button_text = "Basic\nEnemy")
+        self.basic_enemy_button.setposition(-300, 150)
+        self.basic_enemy_button.pencolor((255, 255, 255))
+        self.basic_enemy_button.start_color = (255, 255, 255)
+        self.basic_enemy_button.update_button_text(self.basic_enemy_button.start_color)
 
     def switch_wall_button_focus(self, selected_button):
         for button in self.wall_button_list:
@@ -130,17 +137,21 @@ class Button(turtle.Turtle):
         self.button_type = "test"
 
     def get_clicked(self, x, y):
-            if self.button_type == "wall_button":
-                self.button_handler.switch_wall_button_focus(self)
-            elif self.button_type == "grid_button":
-                self.button_handler.switch_grid_button_focus(self)
-            elif self.button_type == "build_button":
-                self.button_handler.build_wall_section()
-                self.dim()
-            elif self.button_type == "advance_row_button":
-                self.button_handler.advance_active_grid_row()
-            elif self.button_type =="retreat_row_button":
-                self.button_handler.retreat_active_grid_row()
+        if self.button_type == "wall_button":
+            self.button_handler.switch_wall_button_focus(self)
+        elif self.button_type == "grid_button":
+            self.button_handler.switch_grid_button_focus(self)
+        elif self.button_type == "build_button":
+            self.button_handler.build_wall_section()
+            self.dim()
+        elif self.button_type == "advance_row_button":
+            self.button_handler.advance_active_grid_row()
+            self.dim()
+        elif self.button_type == "retreat_row_button":
+            self.button_handler.retreat_active_grid_row()
+            self.dim()
+        elif self.button_type == "basic_enemy":
+            self.dim()
 
 
 class Grid_Button(Button):
@@ -180,8 +191,11 @@ class Text_Button(Button):
         self.pencil.write(self.button_text, align = "center", font=("Arial", 10, "bold"))
 
     def dim(self):
-        self.pencolor((100, 50, 50))
-        self.update_button_text((100, 50, 50))
+        dim_color = []
+        for value in self.pencolor():
+            dim_color.append(int(value * 0.5))
+        self.pencolor(dim_color)
+        self.update_button_text(dim_color)
 
     def revert_to_red(self,x,y):
         self.update_button_text(self.start_color)
